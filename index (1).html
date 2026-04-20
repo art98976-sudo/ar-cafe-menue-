@@ -176,7 +176,6 @@
             border-radius: 10px;
         }
 
-        /* card buttons row */
         .card-btns {
             display: flex;
             gap: 6px;
@@ -205,7 +204,7 @@
             cursor: pointer;
         }
 
-        /* ── CART BAR — fixed bottom ── */
+        /* ── CART BAR ── */
         #cart-bar {
             position: fixed;
             bottom: 60px;
@@ -251,23 +250,6 @@
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-        }
-
-        #cart-badge {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            z-index: 400;
-            background: #d4a574;
-            color: #2c1810;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            font-size: 12px;
-            font-weight: bold;
-            display: none;
-            align-items: center;
-            justify-content: center;
         }
 
         /* ── BOTTOM NAV ── */
@@ -380,7 +362,6 @@
             margin-top: 2px;
         }
 
-        /* quantity controls */
         .qty-controls {
             display: flex;
             align-items: center;
@@ -410,7 +391,6 @@
             text-align: center;
         }
 
-        /* cart summary */
         #cart-summary {
             background: white;
             padding: 16px 20px;
@@ -584,7 +564,6 @@
             color: #555;
         }
 
-        /* quantity selector in AR */
         #ar-qty-row {
             display: flex;
             align-items: center;
@@ -748,6 +727,430 @@
             font-weight: bold;
             cursor: pointer;
         }
+
+        /* ============================================ */
+        /* MEDIA QUERIES                                */
+        /* ============================================ */
+
+        /* ── Small phones (max 360px) ── */
+        @media (max-width: 360px) {
+            #header h1 {
+                font-size: 22px;
+            }
+
+            #header p {
+                font-size: 11px;
+            }
+
+            #header .ar-badge {
+                font-size: 10px;
+                padding: 4px 10px;
+            }
+
+            #grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                padding: 0 10px 10px;
+            }
+
+            .card-img-placeholder {
+                height: 85px;
+                font-size: 36px;
+            }
+
+            .card-name {
+                font-size: 11px;
+            }
+
+            .card-desc {
+                font-size: 9px;
+            }
+
+            .card-price {
+                font-size: 10px;
+                padding: 3px 7px;
+            }
+
+            .card-ar-btn {
+                font-size: 9px;
+                padding: 6px 2px;
+            }
+
+            .card-cal {
+                font-size: 9px;
+                padding: 2px 5px;
+            }
+
+            #ar-detail-name {
+                font-size: 15px;
+            }
+
+            #ar-detail-desc {
+                font-size: 11px;
+            }
+
+            #ar-cart-btn,
+            #ar-order-btn {
+                font-size: 12px;
+                padding: 11px;
+            }
+
+            .cal-badge {
+                font-size: 10px;
+                padding: 4px 8px;
+            }
+
+            #cart-total {
+                font-size: 14px;
+            }
+
+            #cart-checkout-btn {
+                font-size: 12px;
+                padding: 8px 14px;
+            }
+        }
+
+        /* ── Normal phones (361px – 480px) ── */
+        @media (min-width: 361px) and (max-width: 480px) {
+            #header h1 {
+                font-size: 26px;
+            }
+
+            #grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                padding: 0 12px 12px;
+            }
+
+            .card-img-placeholder {
+                height: 100px;
+            }
+
+            .card-name {
+                font-size: 12px;
+            }
+
+            .card-ar-btn {
+                font-size: 10px;
+            }
+        }
+
+        /* ── Large phones / small tablets (481px – 600px) ── */
+        @media (min-width: 481px) and (max-width: 600px) {
+            #grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                padding: 0 16px 16px;
+            }
+
+            .card-img-placeholder {
+                height: 120px;
+            }
+
+            .card-name {
+                font-size: 14px;
+            }
+
+            .card-desc {
+                font-size: 11px;
+            }
+
+            .card-price {
+                font-size: 13px;
+            }
+
+            #ar-detail-name {
+                font-size: 18px;
+            }
+        }
+
+        /* ── Tablets (601px – 900px) ── */
+        @media (min-width: 601px) and (max-width: 900px) {
+            #header {
+                padding: 36px 32px 24px;
+            }
+
+            #header h1 {
+                font-size: 34px;
+            }
+
+            #header p {
+                font-size: 14px;
+            }
+
+            #header .ar-badge {
+                font-size: 13px;
+                padding: 7px 18px;
+            }
+
+            .section-title {
+                font-size: 14px;
+                padding: 20px 24px 10px;
+            }
+
+            #grid {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 16px;
+                padding: 0 24px 24px;
+            }
+
+            .card-img-placeholder {
+                height: 140px;
+                font-size: 56px;
+            }
+
+            .card-name {
+                font-size: 15px;
+            }
+
+            .card-desc {
+                font-size: 12px;
+            }
+
+            .card-price {
+                font-size: 14px;
+                padding: 5px 12px;
+            }
+
+            .card-ar-btn {
+                font-size: 12px;
+                padding: 9px 6px;
+            }
+
+            .card-add-btn {
+                font-size: 16px;
+                padding: 9px 14px;
+            }
+
+            #cart-bar {
+                bottom: 70px;
+                left: 24px;
+                right: 24px;
+                padding: 14px 20px;
+            }
+
+            #cart-total {
+                font-size: 18px;
+            }
+
+            #cart-checkout-btn {
+                font-size: 15px;
+                padding: 12px 24px;
+            }
+
+            #bottom-nav {
+                height: 64px;
+            }
+
+            .nav-item {
+                font-size: 12px;
+                padding: 12px 0;
+            }
+
+            .nav-icon {
+                font-size: 24px;
+            }
+
+            #ar-detail-card {
+                padding: 20px 28px 32px;
+            }
+
+            #ar-detail-name {
+                font-size: 20px;
+            }
+
+            #ar-detail-desc {
+                font-size: 14px;
+            }
+
+            #ar-cart-btn,
+            #ar-order-btn {
+                font-size: 15px;
+                padding: 15px;
+            }
+
+            .cal-badge {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+
+            #ar-food-name {
+                font-size: 17px;
+            }
+
+            #ar-food-price {
+                font-size: 16px;
+            }
+
+            #cart-header h2 {
+                font-size: 24px;
+            }
+
+            .cart-item-name {
+                font-size: 16px;
+            }
+
+            .cart-item-price {
+                font-size: 14px;
+            }
+
+            .cart-item-icon {
+                font-size: 44px;
+            }
+
+            .summary-row {
+                font-size: 15px;
+            }
+
+            .summary-row.total {
+                font-size: 18px;
+            }
+
+            #place-order-btn {
+                font-size: 18px;
+                padding: 18px;
+            }
+
+            #order-success h2 {
+                font-size: 30px;
+            }
+
+            #order-success p {
+                font-size: 16px;
+            }
+        }
+
+        /* ── Desktop / large tablets (901px+) ── */
+        @media (min-width: 901px) {
+            #menu-page {
+                max-width: 480px;
+                margin: 0 auto;
+                box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+            }
+
+            #bottom-nav {
+                max-width: 480px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            #cart-bar {
+                max-width: 448px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            #cart-page {
+                max-width: 480px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            #order-success {
+                max-width: 480px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            #header h1 {
+                font-size: 30px;
+            }
+
+            #grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            body {
+                background: #e8e0d8;
+            }
+        }
+
+        /* ── Landscape mode on phones ── */
+        @media (max-height: 500px) and (orientation: landscape) {
+            #header {
+                padding: 12px 20px 10px;
+            }
+
+            #header h1 {
+                font-size: 20px;
+            }
+
+            #header p,
+            #header .ar-badge {
+                display: none;
+            }
+
+            .section-title {
+                padding: 8px 16px 4px;
+            }
+
+            .card-img-placeholder {
+                height: 80px;
+            }
+
+            #menu-page {
+                padding-bottom: 80px;
+            }
+
+            #bottom-nav {
+                height: 48px;
+            }
+
+            .nav-item {
+                padding: 6px 0;
+                font-size: 9px;
+            }
+
+            .nav-icon {
+                font-size: 16px;
+            }
+
+            #ar-detail-card {
+                padding: 10px 16px 14px;
+            }
+
+            #ar-detail-desc {
+                display: none;
+            }
+
+            #ar-cal-row {
+                margin-bottom: 8px;
+            }
+
+            #ar-qty-row {
+                margin-bottom: 8px;
+            }
+
+            #ar-hint-bar {
+                display: none;
+            }
+        }
+
+        /* ── Touch targets — make buttons easier to tap on mobile ── */
+        @media (hover: none) and (pointer: coarse) {
+            .card-ar-btn,
+            .card-add-btn {
+                min-height: 36px;
+            }
+
+            .qty-btn,
+            .ar-qty-btn {
+                min-width: 36px;
+                min-height: 36px;
+            }
+
+            #place-order-btn {
+                min-height: 52px;
+            }
+
+            #cart-checkout-btn {
+                min-height: 44px;
+            }
+
+            .nav-item {
+                min-height: 48px;
+            }
+        }
     </style>
 
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
@@ -756,11 +1159,8 @@
 
 <body>
 
-    <!-- ============================================ -->
-    <!-- AR PAGE — camera always running behind       -->
-    <!-- ============================================ -->
+    <!-- AR PAGE -->
     <div id="ar-page">
-
         <div id="ar-topbar">
             <button id="back-btn" onclick="closeAR()">← Menu</button>
             <div id="ar-food-name">Pizza</div>
@@ -779,14 +1179,11 @@
 
             <a-entity mindar-image-target="targetIndex: 0">
                 <a-gltf-model id="pizza" src="#pizzaModel" position="0 0.1 0" scale="0.5 0.5 0.5" rotation="0 0 0"
-                    visible="false">
-                </a-gltf-model>
+                    visible="false"></a-gltf-model>
                 <a-gltf-model id="burger" src="#burgerModel" position="0 0.1 0" scale="0.5 0.5 0.5" rotation="0 0 0"
-                    visible="false">
-                </a-gltf-model>
+                    visible="false"></a-gltf-model>
                 <a-gltf-model id="drink" src="#drinkModel" position="0 0.1 0" scale="0.5 0.5 0.5" rotation="0 0 0"
-                    visible="false">
-                </a-gltf-model>
+                    visible="false"></a-gltf-model>
             </a-entity>
         </a-scene>
 
@@ -803,14 +1200,12 @@
                     <div class="cal-badge">⏱️ 15 min</div>
                     <div class="cal-badge">⭐ 4.8</div>
                 </div>
-                <!-- QUANTITY SELECTOR -->
                 <div id="ar-qty-row">
                     <div id="ar-qty-label">Quantity</div>
                     <button class="ar-qty-btn" onclick="changeQty(-1)">−</button>
                     <div id="ar-qty-num">1</div>
                     <button class="ar-qty-btn" onclick="changeQty(1)">+</button>
                 </div>
-                <!-- ACTION BUTTONS -->
                 <div id="ar-action-row">
                     <button id="ar-cart-btn" onclick="addToCart()">🛒 Add to Cart</button>
                     <button id="ar-order-btn" onclick="orderNow()">⚡ Order Now</button>
@@ -820,9 +1215,7 @@
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- MENU PAGE                                    -->
-    <!-- ============================================ -->
+    <!-- MENU PAGE -->
     <div id="menu-page">
         <div id="header">
             <div class="cafe-label">Est. 2024</div>
@@ -834,7 +1227,6 @@
         <div class="section-title">Our Menu</div>
 
         <div id="grid">
-
             <!-- PIZZA -->
             <div class="food-card">
                 <div class="card-img-placeholder" style="background: linear-gradient(135deg,#ff9a56,#ff6b35)">
@@ -900,11 +1292,10 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- ── CART BAR ── -->
+    <!-- CART BAR -->
     <div id="cart-bar">
         <div id="cart-info">
             <div id="cart-count">0 items</div>
@@ -913,7 +1304,7 @@
         <button id="cart-checkout-btn" onclick="openCart()">View Cart →</button>
     </div>
 
-    <!-- ── BOTTOM NAV ── -->
+    <!-- BOTTOM NAV -->
     <div id="bottom-nav">
         <div class="nav-item active" onclick="showMenu()">
             <div class="nav-icon">🍽️</div>Menu
@@ -929,23 +1320,18 @@
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- CART PAGE                                    -->
-    <!-- ============================================ -->
+    <!-- CART PAGE -->
     <div id="cart-page">
         <div id="cart-header">
             <button id="cart-back" onclick="closeCart()">← Back</button>
             <h2>🛒 Your Cart</h2>
         </div>
-
         <div id="cart-items"></div>
-
         <div id="empty-cart">
             <div class="empty-icon">🛒</div>
             <div>Your cart is empty</div>
             <small>Add items from the menu</small>
         </div>
-
         <div id="cart-summary">
             <div class="summary-row">
                 <span>Subtotal</span>
@@ -959,13 +1345,11 @@
                 <span>Total</span>
                 <span id="summary-total">Rs. 0</span>
             </div>
-            <button id="place-order-btn" onclick="placeOrder()">
-                Place Order →
-            </button>
+            <button id="place-order-btn" onclick="placeOrder()">Place Order →</button>
         </div>
     </div>
 
-    <!-- ── ORDER SUCCESS ── -->
+    <!-- ORDER SUCCESS -->
     <div id="order-success">
         <div class="success-icon">🎉</div>
         <h2>Order Placed!</h2>
@@ -974,7 +1358,7 @@
         <button onclick="backToMenu()">Back to Menu</button>
     </div>
 
-    <!-- ── TOAST ── -->
+    <!-- TOAST -->
     <div id="toast">
         <div class="toast-icon" id="toast-icon">✅</div>
         <div class="toast-msg" id="toast-msg">Added!</div>
@@ -982,10 +1366,6 @@
     </div>
 
     <script>
-
-        // ============================================
-        // FOOD DATA
-        // ============================================
         const menuData = {
             pizza: {
                 icon: '🍕', name: 'Margherita Pizza', price: 150,
@@ -1007,13 +1387,7 @@
             },
         };
 
-        // ============================================
-        // CART STATE
-        // cart = { pizza: {qty: 2}, burger: {qty:1} }
-        // ============================================
         let cart = {};
-
-        // AR state
         let currentModel = null;
         let arQty = 1;
         let rotX = 0, rotY = 0, rotZ = 0;
@@ -1026,17 +1400,11 @@
         const rotateSpeed = 0.4;
         const pinchSpeed = 0.01;
 
-        // ============================================
-        // CART FUNCTIONS
-        // ============================================
-
-        // add item to cart (from menu page + button)
         function quickAdd(id) {
             addItemToCart(id, 1);
             showToast('✅', menuData[id].name + ' added!', 'Rs. ' + menuData[id].price);
         }
 
-        // add item from AR with selected quantity
         function addToCart() {
             if (!currentModel) return;
             addItemToCart(currentModel, arQty);
@@ -1044,7 +1412,6 @@
                 'Rs. ' + (menuData[currentModel].price * arQty));
         }
 
-        // core add function
         function addItemToCart(id, qty) {
             if (cart[id]) {
                 cart[id].qty += qty;
@@ -1054,7 +1421,6 @@
             updateCartBar();
         }
 
-        // remove 1 qty or delete from cart
         function removeFromCart(id) {
             if (!cart[id]) return;
             cart[id].qty -= 1;
@@ -1063,31 +1429,26 @@
             updateCartBar();
         }
 
-        // add 1 qty from cart page
         function addFromCart(id) {
             if (cart[id]) cart[id].qty += 1;
             renderCartPage();
             updateCartBar();
         }
 
-        // get total item count
         function getCartCount() {
             return Object.values(cart).reduce((sum, v) => sum + v.qty, 0);
         }
 
-        // get total price
         function getCartTotal() {
             return Object.entries(cart).reduce((sum, [id, v]) => {
                 return sum + (menuData[id].price * v.qty);
             }, 0);
         }
 
-        // update the bottom cart bar
         function updateCartBar() {
             const count = getCartCount();
             const total = getCartTotal();
             const bar = document.getElementById('cart-bar');
-
             if (count > 0) {
                 bar.classList.add('visible');
                 document.getElementById('cart-count').innerText = count + ' item' + (count > 1 ? 's' : '');
@@ -1097,17 +1458,11 @@
             }
         }
 
-        // ============================================
-        // QUANTITY in AR panel
-        // ============================================
         function changeQty(delta) {
             arQty = Math.max(1, Math.min(10, arQty + delta));
             document.getElementById('ar-qty-num').innerText = arQty;
         }
 
-        // ============================================
-        // ORDER NOW from AR (skip cart)
-        // ============================================
         function orderNow() {
             if (!currentModel) return;
             addItemToCart(currentModel, arQty);
@@ -1115,9 +1470,6 @@
             setTimeout(() => placeOrder(), 300);
         }
 
-        // ============================================
-        // OPEN / CLOSE CART PAGE
-        // ============================================
         function openCart() {
             renderCartPage();
             document.getElementById('cart-page').classList.add('open');
@@ -1127,7 +1479,6 @@
             document.getElementById('cart-page').classList.remove('open');
         }
 
-        // render cart items list
         function renderCartPage() {
             const container = document.getElementById('cart-items');
             const empty = document.getElementById('empty-cart');
@@ -1154,76 +1505,51 @@
                             <div class="qty-num">${qty}</div>
                             <button class="qty-btn" onclick="addFromCart('${id}')">+</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 }).join('');
             }
 
-            // update summary
             const subtotal = getCartTotal();
             const tax = Math.round(subtotal * 0.05);
             const total = subtotal + tax;
-
             document.getElementById('summary-subtotal').innerText = 'Rs. ' + subtotal;
             document.getElementById('summary-tax').innerText = 'Rs. ' + tax;
             document.getElementById('summary-total').innerText = 'Rs. ' + total;
         }
 
-        // ============================================
-        // PLACE ORDER
-        // ============================================
         function placeOrder() {
             if (getCartCount() === 0) return;
-
-            // generate random order id
             const orderId = '#' + Math.floor(1000 + Math.random() * 9000);
             document.getElementById('order-id-text').innerText = 'Order ' + orderId;
-
-            // clear cart
             cart = {};
             updateCartBar();
-
-            // close cart page
             document.getElementById('cart-page').classList.remove('open');
-
-            // show success page
             document.getElementById('order-success').classList.add('open');
         }
 
-        // ============================================
-        // BACK TO MENU from success page
-        // ============================================
         function backToMenu() {
             document.getElementById('order-success').classList.remove('open');
             showMenu();
         }
 
-        // ============================================
-        // SHOW MENU
-        // ============================================
         function showMenu() {
             document.getElementById('menu-page').style.display = 'flex';
             document.getElementById('bottom-nav').style.display = 'flex';
         }
 
-        // ============================================
-        // OPEN AR
-        // ============================================
         function openAR(modelId) {
             const item = menuData[modelId];
             arQty = 1;
             document.getElementById('ar-qty-num').innerText = '1';
-
             document.getElementById('ar-food-name').innerText = item.name;
             document.getElementById('ar-food-price').innerText = 'Rs. ' + item.price;
             document.getElementById('ar-detail-name').innerText = item.name;
             document.getElementById('ar-detail-price').innerText = 'Rs. ' + item.price;
             document.getElementById('ar-detail-desc').innerText = item.desc;
             document.getElementById('ar-cal-row').innerHTML = `
-            <div class="cal-badge">🔥 ${item.calories}</div>
-            <div class="cal-badge">⏱️ ${item.time}</div>
-            <div class="cal-badge">⭐ ${item.rating}</div>
-        `;
+                <div class="cal-badge">🔥 ${item.calories}</div>
+                <div class="cal-badge">⏱️ ${item.time}</div>
+                <div class="cal-badge">⭐ ${item.rating}</div>`;
 
             document.getElementById('menu-page').style.display = 'none';
             document.getElementById('bottom-nav').style.display = 'none';
@@ -1249,9 +1575,6 @@
             rotX = 0; rotY = 0; rotZ = 0;
         }
 
-        // ============================================
-        // CLOSE AR
-        // ============================================
         function closeAR() {
             document.getElementById('menu-page').style.display = 'flex';
             document.getElementById('bottom-nav').style.display = 'flex';
@@ -1267,9 +1590,6 @@
             updateCartBar();
         }
 
-        // ============================================
-        // RESET MODEL
-        // ============================================
         function resetModel() {
             if (!currentModel) return;
             rotX = 0; rotY = 0; rotZ = 0;
@@ -1277,9 +1597,6 @@
             applyTransform();
         }
 
-        // ============================================
-        // APPLY TRANSFORM
-        // ============================================
         function applyTransform() {
             if (!currentModel) return;
             const el = document.getElementById(currentModel);
@@ -1288,9 +1605,6 @@
             el.setAttribute('scale', `${currentScale} ${currentScale} ${currentScale}`);
         }
 
-        // ============================================
-        // SHOW TOAST
-        // ============================================
         function showToast(icon, msg, sub) {
             document.getElementById('toast-icon').innerText = icon;
             document.getElementById('toast-msg').innerText = msg;
@@ -1300,18 +1614,12 @@
             setTimeout(() => { toast.style.display = 'none'; }, 1800);
         }
 
-        // ============================================
-        // PINCH DISTANCE
-        // ============================================
         function getPinchDistance(t) {
             const dx = t[0].clientX - t[1].clientX;
             const dy = t[0].clientY - t[1].clientY;
             return Math.sqrt(dx * dx + dy * dy);
         }
 
-        // ============================================
-        // TOUCH EVENTS
-        // ============================================
         document.addEventListener('touchstart', (e) => {
             if (!currentModel) return;
             e.preventDefault();
@@ -1351,8 +1659,6 @@
             lastTouchY = null;
             lastPinchDist = null;
         });
-
     </script>
 </body>
-
 </html>
