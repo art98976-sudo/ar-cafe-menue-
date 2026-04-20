@@ -1035,46 +1035,95 @@
 
         /* ── Desktop / large tablets (901px+) ── */
         @media (min-width: 901px) {
+            body {
+                background: #e8e0d8;
+            }
+
             #menu-page {
-                max-width: 480px;
+                max-width: 900px;
                 margin: 0 auto;
                 box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
             }
 
             #bottom-nav {
-                max-width: 480px;
+                max-width: 900px;
                 left: 50%;
                 transform: translateX(-50%);
             }
 
             #cart-bar {
-                max-width: 448px;
+                max-width: 868px;
                 left: 50%;
                 transform: translateX(-50%);
             }
 
             #cart-page {
-                max-width: 480px;
+                max-width: 900px;
                 left: 50%;
                 transform: translateX(-50%);
             }
 
             #order-success {
-                max-width: 480px;
+                max-width: 900px;
                 left: 50%;
                 transform: translateX(-50%);
             }
 
+            #header {
+                padding: 40px 40px 28px;
+            }
+
             #header h1 {
-                font-size: 30px;
+                font-size: 36px;
+            }
+
+            #header p {
+                font-size: 15px;
+            }
+
+            .section-title {
+                font-size: 14px;
+                padding: 20px 24px 12px;
             }
 
             #grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 16px;
+                padding: 0 24px 24px;
             }
 
-            body {
-                background: #e8e0d8;
+            /* on desktop switch back to vertical card layout */
+            .food-card {
+                flex-direction: column;
+            }
+
+            .card-img-placeholder {
+                width: 100%;
+                min-width: unset;
+                height: 160px;
+                min-height: unset;
+            }
+
+            .card-name {
+                font-size: 15px;
+            }
+
+            .card-desc {
+                font-size: 12px;
+            }
+
+            .card-price {
+                font-size: 14px;
+            }
+
+            .card-ar-btn {
+                font-size: 12px;
+                padding: 10px 8px;
+            }
+
+            .card-add-btn {
+                font-size: 16px;
+                padding: 10px 16px;
             }
         }
 
