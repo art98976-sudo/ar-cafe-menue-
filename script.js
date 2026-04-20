@@ -1,24 +1,24 @@
 // ============================================
-// FOOD DATA — edit prices, names, desc here
+// FOOD DATA
 // ============================================
 const menuData = {
     pizza: {
         icon: '🍕', name: 'Margherita Pizza', price: 150,
         desc: 'Fresh tomato sauce, mozzarella cheese and aromatic basil on a perfectly crispy thin crust.',
         calories: '320 kcal', time: '15 min', rating: '4.8',
-        scale: 0.5, posY: 0.1,
+        model: './pizza.glb',
     },
     burger: {
         icon: '🍔', name: 'Classic Burger', price: 200,
         desc: 'Juicy beef patty with melted cheese, crisp lettuce and tomato in a toasted sesame bun.',
         calories: '540 kcal', time: '10 min', rating: '4.7',
-        scale: 0.5, posY: 0.1,
+        model: './burger.glb',
     },
     drink: {
         icon: '🥤', name: 'Fresh Lemonade', price: 80,
         desc: 'Cold pressed lemonade with fresh mint leaves, a squeeze of lime and a hint of honey.',
         calories: '85 kcal', time: '5 min', rating: '4.9',
-        scale: 0.5, posY: 0.1,
+        model: './drink.glb',
     },
 };
 
@@ -26,35 +26,198 @@ const menuData = {
 // CART STATE
 // ============================================
 let cart = {};
-
-// ============================================
-// AR STATE
-// ============================================
 let currentModel = null;
 let arQty = 1;
-let rotX = 0, rotY = 0, rotZ = 0;
-let currentScale = 0.5;
-const minScale = 0.1;
-const maxScale = 3.0;
-let lastTouchX = null;
-let lastTouchY = null;
-let lastPinchDist = null;
-const rotateSpeed = 0.4;
-const pinchSpeed = 0.01;
 
 // ============================================
-// SAFE ZONE — areas where touch should NOT
-// rotate the model (buttons, bars)
+// THREE.JS VIEWER
 // ============================================
-function isSafeZone(e) {
-    const target = e.target;
-    return (
-        target.closest('button') ||
-        target.closest('#ar-topbar') ||
-        target.closest('#ar-bottombar') ||
-        target.closest('#ar-detail-card') ||
-        target.closest('#ar-hint-bar')
+let threeRenderer, threeScene, threeCamera, threeControls, threeAnimId;
+let loadedModel = null;
+
+function initThreeJS() {
+    const canvas = document.getElementById('three-canvas');
+    const container = document.getElementById('ar-page');
+
+    threeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    threeRenderer.setPixelRatio(window.devicePixelRatio);
+    threeRenderer.setSize(container.clientWidth, container.clientHeight);
+    threeRenderer.setClearColor(0x1a1a2e, 1);
+    threeRenderer.shadowMap.enabled = true;
+
+    threeScene = new THREE.Scene();
+
+    // Camera
+    threeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+    threeCamera.position.set(0, 1, 3);
+
+    // Lights
+    const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+    threeScene.add(ambient);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(5, 10, 7);
+    threeScene.add(dirLight);
+
+    const pointLight = new THREE.PointLight(0xd4a574, 0.6, 20);
+    pointLight.position.set(-3, 3, -3);
+    threeScene.add(pointLight);
+
+    // OrbitControls — touch + mouse rotate/zoom
+    threeControls = new THREE.OrbitControls(threeCamera, canvas);
+    threeControls.enableDamping = true;
+    threeControls.dampingFactor = 0.05;
+    threeControls.minDistance = 1;
+    threeControls.maxDistance = 8;
+    threeControls.enablePan = false;
+    threeControls.autoRotate = true;
+    threeControls.autoRotateSpeed = 1.5;
+
+    // Stop auto rotate on touch
+    canvas.addEventListener('touchstart', () => { threeControls.autoRotate = false; });
+    canvas.addEventListener('mousedown', () => { threeControls.autoRotate = false; });
+
+    animate();
+}
+
+function animate() {
+    threeAnimId = requestAnimationFrame(animate);
+    if (threeControls) threeControls.update();
+    if (threeRenderer && threeScene && threeCamera) {
+        threeRenderer.render(threeScene, threeCamera);
+    }
+}
+
+function loadGLBModel(modelPath) {
+    // Remove old model
+    if (loadedModel) {
+        threeScene.remove(loadedModel);
+        loadedModel = null;
+    }
+
+    document.getElementById('ar-loading').style.display = 'flex';
+
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+        modelPath,
+        function (gltf) {
+            loadedModel = gltf.scene;
+
+            // Auto-center and scale
+            const box = new THREE.Box3().setFromObject(loadedModel);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 2.0 / maxDim;
+
+            loadedModel.scale.setScalar(scale);
+            loadedModel.position.sub(center.multiplyScalar(scale));
+
+            threeScene.add(loadedModel);
+            document.getElementById('ar-loading').style.display = 'none';
+
+            // Reset camera
+            threeCamera.position.set(0, 1, 3);
+            threeControls.reset();
+            threeControls.autoRotate = true;
+        },
+        function (xhr) {
+            // progress
+        },
+        function (error) {
+            console.error('Model load error:', error);
+            document.getElementById('ar-loading').style.display = 'none';
+            // Show emoji fallback if no model file
+            showEmojiModel();
+        }
     );
+}
+
+function showEmojiModel() {
+    // Fallback: show a spinning sphere with item color if no .glb
+    const geo = new THREE.SphereGeometry(1, 32, 32);
+    const mat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.3, metalness: 0.2 });
+    loadedModel = new THREE.Mesh(geo, mat);
+    threeScene.add(loadedModel);
+}
+
+function resizeRenderer() {
+    if (!threeRenderer) return;
+    const container = document.getElementById('ar-page');
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    threeRenderer.setSize(w, h);
+    threeCamera.aspect = w / h;
+    threeCamera.updateProjectionMatrix();
+}
+
+// ============================================
+// OPEN AR — shows 3D viewer directly
+// ============================================
+function openAR(modelId) {
+    currentModel = modelId;
+    const item = menuData[modelId];
+    arQty = 1;
+
+    // Update UI
+    document.getElementById('ar-qty-num').innerText = '1';
+    document.getElementById('ar-food-name').innerText = item.name;
+    document.getElementById('ar-food-price').innerText = 'Rs. ' + item.price;
+    document.getElementById('ar-detail-name').innerText = item.name;
+    document.getElementById('ar-detail-price').innerText = 'Rs. ' + item.price;
+    document.getElementById('ar-detail-desc').innerText = item.desc;
+    document.getElementById('ar-cal-row').innerHTML = `
+        <div class="cal-badge">🔥 ${item.calories}</div>
+        <div class="cal-badge">⏱️ ${item.time}</div>
+        <div class="cal-badge">⭐ ${item.rating}</div>`;
+
+    // Show AR page
+    document.getElementById('menu-page').style.display = 'none';
+    document.getElementById('bottom-nav').style.display = 'none';
+    document.getElementById('cart-bar').classList.remove('visible');
+    document.getElementById('ar-page').style.display = 'block';
+    document.getElementById('ar-topbar').style.display = 'flex';
+    document.getElementById('ar-bottombar').style.display = 'flex';
+    document.getElementById('back-btn').classList.add('visible');
+
+    // Init Three.js if not already
+    if (!threeRenderer) {
+        initThreeJS();
+    }
+
+    resizeRenderer();
+    loadGLBModel(item.model);
+
+    history.pushState({ page: 'ar' }, '');
+}
+
+// ============================================
+// CLOSE AR
+// ============================================
+function closeAR() {
+    currentModel = null;
+
+    document.getElementById('ar-page').style.display = 'none';
+    document.getElementById('ar-topbar').style.display = 'none';
+    document.getElementById('ar-bottombar').style.display = 'none';
+    document.getElementById('back-btn').classList.remove('visible');
+    document.getElementById('menu-page').style.display = 'flex';
+    document.getElementById('bottom-nav').style.display = 'flex';
+
+    // Stop auto rotate
+    if (threeControls) threeControls.autoRotate = false;
+
+    updateCartBar();
+}
+
+// ============================================
+// RESET MODEL
+// ============================================
+function resetModel() {
+    if (threeControls) {
+        threeControls.reset();
+        threeControls.autoRotate = true;
+    }
 }
 
 // ============================================
@@ -119,16 +282,13 @@ function updateCartBar() {
 }
 
 // ============================================
-// QUANTITY IN AR PANEL
+// QUANTITY
 // ============================================
 function changeQty(delta) {
     arQty = Math.max(1, Math.min(10, arQty + delta));
     document.getElementById('ar-qty-num').innerText = arQty;
 }
 
-// ============================================
-// ORDER NOW FROM AR
-// ============================================
 function orderNow() {
     if (!currentModel) return;
     addItemToCart(currentModel, arQty);
@@ -137,7 +297,7 @@ function orderNow() {
 }
 
 // ============================================
-// OPEN / CLOSE CART PAGE
+// CART PAGE
 // ============================================
 function openCart() {
     renderCartPage();
@@ -188,7 +348,7 @@ function renderCartPage() {
 }
 
 // ============================================
-// PLACE ORDER
+// ORDER
 // ============================================
 function placeOrder() {
     if (getCartCount() === 0) return;
@@ -200,9 +360,6 @@ function placeOrder() {
     document.getElementById('order-success').classList.add('open');
 }
 
-// ============================================
-// BACK TO MENU
-// ============================================
 function backToMenu() {
     document.getElementById('order-success').classList.remove('open');
     showMenu();
@@ -214,106 +371,21 @@ function showMenu() {
 }
 
 // ============================================
-// OPEN AR
-// ============================================
-function openAR(modelId) {
-    const item = menuData[modelId];
-    arQty = 1;
-    document.getElementById('ar-qty-num').innerText = '1';
-    document.getElementById('ar-food-name').innerText = item.name;
-    document.getElementById('ar-food-price').innerText = 'Rs. ' + item.price;
-    document.getElementById('ar-detail-name').innerText = item.name;
-    document.getElementById('ar-detail-price').innerText = 'Rs. ' + item.price;
-    document.getElementById('ar-detail-desc').innerText = item.desc;
-    document.getElementById('ar-cal-row').innerHTML = `
-        <div class="cal-badge">🔥 ${item.calories}</div>
-        <div class="cal-badge">⏱️ ${item.time}</div>
-        <div class="cal-badge">⭐ ${item.rating}</div>`;
-
-    document.getElementById('menu-page').style.display = 'none';
-    document.getElementById('bottom-nav').style.display = 'none';
-    document.getElementById('cart-bar').classList.remove('visible');
-    document.getElementById('ar-topbar').style.display = 'flex';
-    document.getElementById('ar-bottombar').style.display = 'flex';
-    document.getElementById('back-btn').classList.add('visible');
-
-    Object.keys(menuData).forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.setAttribute('visible', 'false');
-    });
-
-    const el = document.getElementById(modelId);
-    if (el) {
-        el.setAttribute('visible', 'true');
-        el.setAttribute('position', `0 ${item.posY} 0`);
-        el.setAttribute('scale', `${item.scale} ${item.scale} ${item.scale}`);
-        el.setAttribute('rotation', '0 0 0');
-    }
-
-    currentModel = modelId;
-    currentScale = item.scale;
-    rotX = 0; rotY = 0; rotZ = 0;
-
-    history.pushState({ page: 'ar' }, '');
-}
-
-// ============================================
-// CLOSE AR
-// ============================================
-function closeAR() {
-    currentModel = null;
-
-    document.getElementById('ar-topbar').style.display = 'none';
-    document.getElementById('ar-bottombar').style.display = 'none';
-    document.getElementById('back-btn').classList.remove('visible');
-    document.getElementById('menu-page').style.display = 'flex';
-    document.getElementById('bottom-nav').style.display = 'flex';
-
-    Object.keys(menuData).forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.setAttribute('visible', 'false');
-    });
-
-    updateCartBar();
-}
-
-// ============================================
-// PHONE BACK BUTTON HANDLER
+// PHONE BACK BUTTON
 // ============================================
 window.addEventListener('popstate', function () {
-    if (document.getElementById('ar-topbar').style.display === 'flex') {
-        closeAR();
-        return;
+    if (document.getElementById('ar-page').style.display === 'block') {
+        closeAR(); return;
     }
     if (document.getElementById('cart-page').classList.contains('open')) {
-        closeCart();
-        return;
+        closeCart(); return;
     }
     if (document.getElementById('order-success').classList.contains('open')) {
-        backToMenu();
-        return;
+        backToMenu(); return;
     }
 });
 
 history.pushState({ page: 'menu' }, '');
-
-// ============================================
-// RESET MODEL
-// ============================================
-function resetModel() {
-    if (!currentModel) return;
-    rotX = 0; rotY = 0; rotZ = 0;
-    currentScale = menuData[currentModel].scale;
-    applyTransform();
-}
-
-function applyTransform() {
-    if (!currentModel) return;
-    const el = document.getElementById(currentModel);
-    if (!el) return;
-    el.setAttribute('rotation', `${rotX} ${rotY} ${rotZ}`);
-    el.setAttribute('scale', `${currentScale} ${currentScale} ${currentScale}`);
-}
 
 // ============================================
 // TOAST
@@ -327,77 +399,5 @@ function showToast(icon, msg, sub) {
     setTimeout(() => { toast.style.display = 'none'; }, 1800);
 }
 
-// ============================================
-// TOUCH EVENTS — only on camera area
-// ============================================
-function getPinchDistance(t) {
-    const dx = t[0].clientX - t[1].clientX;
-    const dy = t[0].clientY - t[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-document.addEventListener('touchstart', (e) => {
-    if (!currentModel) return;
-    if (isSafeZone(e)) return;   // ← let buttons work normally
-    e.preventDefault();
-    if (e.touches.length === 1) {
-        lastTouchX = e.touches[0].clientX;
-        lastTouchY = e.touches[0].clientY;
-        lastPinchDist = null;
-    } else if (e.touches.length === 2) {
-        lastPinchDist = getPinchDistance(e.touches);
-        lastTouchX = null;
-    }
-}, { passive: false });
-
-document.addEventListener('touchmove', (e) => {
-    if (!currentModel) return;
-    if (isSafeZone(e)) return;   // ← let buttons work normally
-    e.preventDefault();
-    if (e.touches.length === 1 && lastTouchX !== null) {
-        const dx = e.touches[0].clientX - lastTouchX;
-        const dy = e.touches[0].clientY - lastTouchY;
-        rotY += dx * rotateSpeed;
-        rotX += dy * rotateSpeed;
-        lastTouchX = e.touches[0].clientX;
-        lastTouchY = e.touches[0].clientY;
-    } else if (e.touches.length === 2 && lastPinchDist !== null) {
-        const newDist = getPinchDistance(e.touches);
-        const delta = newDist - lastPinchDist;
-        currentScale += delta * pinchSpeed;
-        if (currentScale < minScale) currentScale = minScale;
-        if (currentScale > maxScale) currentScale = maxScale;
-        lastPinchDist = newDist;
-    }
-    applyTransform();
-}, { passive: false });
-
-document.addEventListener('touchend', (e) => {
-    if (isSafeZone(e)) return;
-    lastTouchX = null;
-    lastTouchY = null;
-    lastPinchDist = null;
-});
-
-// ============================================
-// ATTACH BACK BUTTON — after page loads
-// uses both onclick AND touchend for mobile
-// ============================================
-window.addEventListener('load', function () {
-    const backBtn = document.getElementById('back-btn');
-    if (backBtn) {
-        // remove old onclick
-        backBtn.removeAttribute('onclick');
-        // click works on desktop
-        backBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            closeAR();
-        });
-        // touchend works on mobile (fires even when aframe blocks click)
-        backBtn.addEventListener('touchend', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            closeAR();
-        });
-    }
-});
+// Resize on window resize
+window.addEventListener('resize', resizeRenderer);
