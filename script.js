@@ -6,19 +6,19 @@ const menuData = {
         icon: '🍕', name: 'Margherita Pizza', price: 150,
         desc: 'Fresh tomato sauce, mozzarella cheese and aromatic basil on a perfectly crispy thin crust.',
         calories: '320 kcal', time: '15 min', rating: '4.8',
-        model: './pizza.glb', arId: 'ar-pizza',
+        model: './pizza.glb', arId: 'ar-pizza', wrapperId: 'ar-pizza-wrapper',
     },
     burger: {
         icon: '🍔', name: 'Classic Burger', price: 200,
         desc: 'Juicy beef patty with melted cheese, crisp lettuce and tomato in a toasted sesame bun.',
         calories: '540 kcal', time: '10 min', rating: '4.7',
-        model: './burger.glb', arId: 'ar-burger',
+        model: './burger.glb', arId: 'ar-burger', wrapperId: 'ar-burger-wrapper',
     },
     drink: {
         icon: '🥤', name: 'Fresh Lemonade', price: 80,
         desc: 'Cold pressed lemonade with fresh mint leaves, a squeeze of lime and a hint of honey.',
         calories: '85 kcal', time: '5 min', rating: '4.9',
-        model: './drink.glb', arId: 'ar-drink',
+        model: './drink.glb', arId: 'ar-drink', wrapperId: 'ar-drink-wrapper',
     },
 };
 
@@ -273,10 +273,13 @@ function openAR(modelId) {
     arRotX = 0;
     arScale = arScales[modelId] || 0.5;
 
+    // Show wrapper entity
+    const wrapper = document.getElementById(menuData[modelId].wrapperId);
+    if (wrapper) wrapper.setAttribute('visible', 'true');
+
+    // Set model scale
     const arEl = document.getElementById(menuData[modelId].arId);
     if (arEl) {
-        arEl.setAttribute('visible', 'true');
-        arEl.setAttribute('position', '0 0.05 0');
         arEl.setAttribute('scale', `${arScale} ${arScale} ${arScale}`);
         arEl.setAttribute('rotation', '0 0 0');
     }
@@ -296,7 +299,7 @@ function closeViewer() {
     document.getElementById('back-btn').classList.remove('visible');
     document.getElementById('menu-page').style.display = 'flex';
     document.getElementById('bottom-nav').style.display = 'flex';
-    ['ar-pizza', 'ar-burger', 'ar-drink'].forEach(id => {
+    ['ar-pizza-wrapper', 'ar-burger-wrapper', 'ar-drink-wrapper'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.setAttribute('visible', 'false');
     });
@@ -453,6 +456,11 @@ let arLastPinchDist = null;
 function getArModel() {
     if (!currentModel) return null;
     return document.getElementById(menuData[currentModel].arId);
+}
+
+function getArWrapper() {
+    if (!currentModel) return null;
+    return document.getElementById(menuData[currentModel].wrapperId);
 }
 
 function arGetPinchDist(t) {
