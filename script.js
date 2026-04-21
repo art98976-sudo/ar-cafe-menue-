@@ -217,42 +217,67 @@ function openAR(modelId) {
     if (overlay) overlay.classList.remove('hidden');
 
     arRotY = 0; arRotX = 0;
-    arScale = menuData[modelId].arScale || 0.5;
+    arScale = menuData[modelId].arScale || 0.3;
 
-    // Set correct scale on all models
-    Object.keys(menuData).forEach(id => {
-        const el = document.getElementById(menuData[id].arId);
-        if (el) el.setAttribute('scale', `${menuData[id].arScale} ${menuData[id].arScale} ${menuData[id].arScale}`);
-    });
-
-    // Listen for target detection
-    setTimeout(function() {
+    // Wait for a-scene to be fully ready then attach events
+    function attachAREvents() {
         const target = document.querySelector('[mindar-image-target]');
         if (target) {
+            // Remove old listeners first
+            target.removeEventListener('targetFound', onARDetected);
+            target.removeEventListener('targetLost', onARLost);
+            // Add fresh listeners
             target.addEventListener('targetFound', onARDetected);
             target.addEventListener('targetLost', onARLost);
+            console.log('AR events attached');
+        } else {
+            console.log('Target not found, retrying...');
+            setTimeout(attachAREvents, 500);
         }
-    }, 1000);
+    }
+
+    // Wait for scene to load
+    const scene = document.querySelector('a-scene');
+    if (scene && scene.hasLoaded) {
+        attachAREvents();
+    } else if (scene) {
+        scene.addEventListener('loaded', attachAREvents);
+        setTimeout(attachAREvents, 2000); // fallback
+    } else {
+        setTimeout(attachAREvents, 2000);
+    }
 
     history.pushState({ page: 'ar' }, '');
 }
 
 // ── AR Detection ──
 function onARDetected() {
-    // ✅ Show the correct 3D model
-    if (currentModel) {
+    console.log('Target found! Showing model:', currentModel);
+
+    // Show model with retry mechanism
+    function showModel(retries) {
+        if (!currentModel) return;
         const arEl = document.getElementById(menuData[currentModel].arId);
         if (arEl) {
             arEl.setAttribute('visible', 'true');
             arEl.setAttribute('scale', `${arScale} ${arScale} ${arScale}`);
             arEl.setAttribute('rotation', '0 0 0');
-            // Also force via Three.js object3D for mobile
+            // Force via Three.js object3D
             if (arEl.object3D) {
                 arEl.object3D.visible = true;
                 arEl.object3D.traverse(c => { c.visible = true; });
+                console.log('Model shown via object3D');
+            } else if (retries > 0) {
+                // object3D not ready yet, retry
+                console.log('Retrying... ' + retries);
+                setTimeout(() => showModel(retries - 1), 200);
             }
+        } else {
+            console.log('AR element not found!');
         }
     }
+
+    showModel(10); // retry up to 10 times
 
     const overlay = document.getElementById('scan-overlay');
     if (overlay) overlay.classList.add('hidden');
