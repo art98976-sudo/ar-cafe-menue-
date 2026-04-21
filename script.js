@@ -57,19 +57,36 @@ function initThreeJS() {
     threeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     threeRenderer.setPixelRatio(window.devicePixelRatio);
     threeRenderer.setSize(container.clientWidth, container.clientHeight);
-    threeRenderer.setClearColor(0x1a1a2e, 1);
+    threeRenderer.shadowMap.enabled = true;
+    threeRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+    threeRenderer.toneMappingExposure = 1.5;
 
     threeScene = new THREE.Scene();
-    threeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-    threeCamera.position.set(0, 1, 3);
+    // Light warm background like a restaurant
+    threeScene.background = new THREE.Color(0xf5ede0);
 
-    threeScene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
-    dir.position.set(5, 10, 7);
-    threeScene.add(dir);
-    const pt = new THREE.PointLight(0xd4a574, 0.6, 20);
-    pt.position.set(-3, 3, -3);
-    threeScene.add(pt);
+    threeCamera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 100);
+    threeCamera.position.set(0, 0.8, 2.5);
+
+    // Bright realistic lighting
+    threeScene.add(new THREE.AmbientLight(0xfff8f0, 2.5));
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.0);
+    keyLight.position.set(3, 8, 5);
+    keyLight.castShadow = true;
+    threeScene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0xffe8d0, 2.0);
+    fillLight.position.set(-4, 4, -3);
+    threeScene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0xffd0a0, 1.5);
+    rimLight.position.set(0, 3, -5);
+    threeScene.add(rimLight);
+
+    const bottomLight = new THREE.PointLight(0xffcc88, 1.5, 10);
+    bottomLight.position.set(0, -2, 2);
+    threeScene.add(bottomLight);
 
     // Get OrbitControls
     const OC = THREE.OrbitControls || window.OrbitControls;
@@ -123,22 +140,55 @@ function loadGLBModel(modelPath) {
         loader.setDRACOLoader(dracoLoader);
     }
 
+    // Reset progress bar
+    const progressBar = document.getElementById('progress-bar');
+    const progressPercent = document.getElementById('progress-percent');
+    const loadingIcon = document.querySelector('.loading-icon');
+    if (progressBar) progressBar.style.width = '0%';
+    if (progressPercent) progressPercent.innerText = '0%';
+
     loader.load(modelPath,
         function (gltf) {
+            // 100% complete
+            if (progressBar) progressBar.style.width = '100%';
+            if (progressPercent) progressPercent.innerText = '100%';
+
             loadedModel = gltf.scene;
             const box = new THREE.Box3().setFromObject(loadedModel);
             const center = box.getCenter(new THREE.Vector3());
             const size = box.getSize(new THREE.Vector3());
-            const scale = 2.0 / Math.max(size.x, size.y, size.z);
+            const scale = 2.8 / Math.max(size.x, size.y, size.z);
             loadedModel.scale.setScalar(scale);
             loadedModel.position.sub(center.multiplyScalar(scale));
             threeScene.add(loadedModel);
-            document.getElementById('ar-loading').style.display = 'none';
-            threeCamera.position.set(0, 1, 3);
+
+            // Hide loading after short delay
+            setTimeout(() => {
+                document.getElementById('ar-loading').style.display = 'none';
+            }, 300);
+
+            threeCamera.position.set(0, 0.8, 2.5);
             threeControls.reset();
             threeControls.autoRotate = true;
         },
-        null,
+        function (xhr) {
+            // Show progress
+            if (xhr.lengthComputable) {
+                const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                if (progressBar) progressBar.style.width = percent + '%';
+                if (progressPercent) progressPercent.innerText = percent + '%';
+                // Change icon based on item
+                if (loadingIcon && currentModel) {
+                    loadingIcon.innerText = menuData[currentModel].icon;
+                }
+            } else {
+                // Unknown size - animate bar
+                if (progressBar) {
+                    const current = parseFloat(progressBar.style.width) || 0;
+                    if (current < 90) progressBar.style.width = (current + 2) + '%';
+                }
+            }
+        },
         function (error) {
             console.error('Model load error:', error);
             document.getElementById('ar-loading').style.display = 'none';
