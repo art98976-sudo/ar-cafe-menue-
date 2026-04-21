@@ -13,6 +13,7 @@
     <!-- Load OrbitControls AFTER aframe using same Three version -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/DRACOLoader.js"></script>
 </head>
 <body>
 
@@ -203,6 +204,22 @@
         <div class="toast-sub"  id="toast-sub"></div>
     </div>
 
+    <script>
+    // Debug: log what's available after all scripts load
+    window.addEventListener('load', function() {
+        console.log('AFRAME.THREE:', typeof (window.AFRAME && window.AFRAME.THREE));
+        console.log('GLTFLoader:', typeof window.GLTFLoader);
+        console.log('OrbitControls:', typeof window.OrbitControls);
+        console.log('AFRAME.THREE.GLTFLoader:', typeof (window.AFRAME && window.AFRAME.THREE && window.AFRAME.THREE.GLTFLoader));
+        
+        // Patch GLTFLoader and OrbitControls into AFRAME.THREE
+        if (window.AFRAME && window.AFRAME.THREE) {
+            if (window.GLTFLoader) window.AFRAME.THREE.GLTFLoader = window.GLTFLoader;
+            if (window.OrbitControls) window.AFRAME.THREE.OrbitControls = window.OrbitControls;
+            console.log('Patched successfully');
+        }
+    });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
