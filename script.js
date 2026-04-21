@@ -266,14 +266,17 @@ function openAR(modelId) {
         const el = document.getElementById(id);
         if (el) el.setAttribute('visible', 'false');
     });
-    // Reset AR rotation and scale
+
+    // Different scale per item
+    const arScales = { pizza: 0.5, burger: 0.3, drink: 0.5 };
     arRotY = 0;
-    arScale = 0.8;
+    arScale = arScales[modelId] || 0.5;
+
     const arEl = document.getElementById(menuData[modelId].arId);
     if (arEl) {
         arEl.setAttribute('visible', 'true');
         arEl.setAttribute('position', '0 0.05 0');
-        arEl.setAttribute('scale', '0.8 0.8 0.8');
+        arEl.setAttribute('scale', `${arScale} ${arScale} ${arScale}`);
         arEl.setAttribute('rotation', '0 0 0');
     }
     history.pushState({ page: 'ar' }, '');

@@ -68,29 +68,24 @@
             <a-light type="directional" color="#ffe0c0" intensity="1" position="-1 1 -1"></a-light>
 
             <a-entity mindar-image-target="targetIndex: 0">
-                <!-- Food sits ON the image like on a table -->
-                <!-- position y=0.1 lifts slightly above surface -->
-                <!-- scale 0.8 makes it bigger and more visible -->
+                <!-- No auto rotation - finger controlled 360 rotation -->
                 <a-gltf-model id="ar-pizza"  src="#pizzaModel"
                     position="0 0.05 0"
-                    scale="0.8 0.8 0.8"
+                    scale="0.5 0.5 0.5"
                     rotation="0 0 0"
-                    visible="false"
-                    animation="property: rotation; from: 0 0 0; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+                    visible="false">
                 </a-gltf-model>
                 <a-gltf-model id="ar-burger" src="#burgerModel"
                     position="0 0.05 0"
-                    scale="0.8 0.8 0.8"
+                    scale="0.3 0.3 0.3"
                     rotation="0 0 0"
-                    visible="false"
-                    animation="property: rotation; from: 0 0 0; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+                    visible="false">
                 </a-gltf-model>
                 <a-gltf-model id="ar-drink"  src="#drinkModel"
                     position="0 0.05 0"
-                    scale="0.8 0.8 0.8"
+                    scale="0.5 0.5 0.5"
                     rotation="0 0 0"
-                    visible="false"
-                    animation="property: rotation; from: 0 0 0; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+                    visible="false">
                 </a-gltf-model>
             </a-entity>
         </a-scene>
