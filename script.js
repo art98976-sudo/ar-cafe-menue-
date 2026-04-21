@@ -239,6 +239,21 @@ function openAR(modelId) {
 
 // ── AR Detection ──
 function onARDetected() {
+    // ✅ Show the correct 3D model
+    if (currentModel) {
+        const arEl = document.getElementById(menuData[currentModel].arId);
+        if (arEl) {
+            arEl.setAttribute('visible', 'true');
+            arEl.setAttribute('scale', `${arScale} ${arScale} ${arScale}`);
+            arEl.setAttribute('rotation', '0 0 0');
+            // Also force via Three.js object3D for mobile
+            if (arEl.object3D) {
+                arEl.object3D.visible = true;
+                arEl.object3D.traverse(c => { c.visible = true; });
+            }
+        }
+    }
+
     const overlay = document.getElementById('scan-overlay');
     if (overlay) overlay.classList.add('hidden');
     const detected = document.getElementById('ar-detected');
