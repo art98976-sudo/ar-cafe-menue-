@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <!-- iOS Safari fixes -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>AR Cafe Menu</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
@@ -36,19 +34,41 @@
     <div id="viewer-3d">
         <canvas id="three-canvas"></canvas>
         <div id="ar-loading">
-            <div class="spinner"></div>
+            <div class="loading-icon">🍕</div>
             <div class="loading-text">Loading 3D Model...</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="progress-percent" id="progress-percent">0%</div>
         </div>
     </div>
 
-    <!-- AR VIEWER -->
+    <!-- AR VIEWER — simple and clean -->
     <div id="viewer-ar">
-        <!-- Scanning Guide Overlay -->
-        <div id="scan-overlay">
-            <!-- Top instruction -->
-            <div id="scan-top-text">📷 Point camera at your menu image</div>
+        <a-scene mindar-image="imageTargetSrc: ./targets.mind; uiLoading: no; uiError: no; uiScanning: no"
+            color-space="sRGB"
+            renderer="colorManagement: true"
+            vr-mode-ui="enabled: false"
+            device-orientation-permission-ui="enabled: false"
+            loading-screen="enabled: false">
+            <a-assets timeout="120000">
+                <a-asset-item id="pizzaModel"  src="./pizza.glb"></a-asset-item>
+                <a-asset-item id="burgerModel" src="./burger.glb"></a-asset-item>
+                <a-asset-item id="drinkModel"  src="./drink.glb"></a-asset-item>
+            </a-assets>
+            <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+            <a-light type="ambient" color="#ffffff" intensity="3"></a-light>
+            <a-light type="directional" color="#ffffff" intensity="3" position="1 2 1"></a-light>
+            <a-entity mindar-image-target="targetIndex: 0">
+                <a-gltf-model id="ar-pizza"  src="#pizzaModel"  position="0 0.05 0" scale="0.5 0.5 0.5"   rotation="0 0 0"></a-gltf-model>
+                <a-gltf-model id="ar-burger" src="#burgerModel" position="0 0.05 0" scale="0.15 0.15 0.15" rotation="0 0 0"></a-gltf-model>
+                <a-gltf-model id="ar-drink"  src="#drinkModel"  position="0 0.05 0" scale="0.2 0.2 0.2"   rotation="0 0 0"></a-gltf-model>
+            </a-entity>
+        </a-scene>
 
-            <!-- Animated scan box -->
+        <!-- Scanning Guide -->
+        <div id="scan-overlay">
+            <div id="scan-top-text">📷 Point camera at your menu image</div>
             <div id="scan-box">
                 <div class="scan-corner tl"></div>
                 <div class="scan-corner tr"></div>
@@ -57,60 +77,18 @@
                 <div id="scan-line"></div>
                 <div id="scan-center-dot"></div>
             </div>
-
-            <!-- Tips row -->
             <div id="scan-tips">
                 <div class="scan-tip">💡 Good lighting</div>
                 <div class="scan-tip">📐 Hold steady</div>
                 <div class="scan-tip">📏 20-30cm away</div>
             </div>
-
-            <!-- Progress dots -->
-            <div id="scan-progress">
-                <div class="scan-dot active"></div>
-                <div class="scan-dot"></div>
-                <div class="scan-dot"></div>
-            </div>
         </div>
 
-        <!-- Detected notification -->
+        <!-- Detected -->
         <div id="ar-detected">
             <div id="ar-detected-icon">✅</div>
             <div id="ar-detected-text">Image Detected!</div>
         </div>
-
-        <!-- Tap to fix white screen -->
-        <div id="ar-tap-fix" onclick="fixARVideo()" ontouchend="event.preventDefault();fixARVideo();">
-            📷 Tap here if screen is white
-        </div>
-
-        <!-- AR Controls hint -->
-        <div id="ar-controls-hint">
-            <span>☝️ Drag to rotate</span>
-            <span>·</span>
-            <span>🤏 Pinch to zoom</span>
-        </div>
-        <a-scene mindar-image="imageTargetSrc: ./targets.mind; uiLoading: no; uiError: no; uiScanning: no"
-            color-space="sRGB"
-            renderer="colorManagement: true; physicallyCorrectLights: true"
-            vr-mode-ui="enabled: false"
-            device-orientation-permission-ui="enabled: false"
-            loading-screen="enabled: false">
-            <a-assets timeout="120000" >
-                <a-asset-item id="pizzaModel"  src="./pizza.glb" crossorigin="anonymous"></a-asset-item>
-                <a-asset-item id="burgerModel" src="./burger.glb" crossorigin="anonymous"></a-asset-item>
-                <a-asset-item id="drinkModel"  src="./drink.glb" crossorigin="anonymous"></a-asset-item>
-            </a-assets>
-            <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-            <a-light type="ambient" color="#ffffff" intensity="3"></a-light>
-            <a-light type="directional" color="#ffffff" intensity="3" position="1 2 1"></a-light>
-            <a-light type="directional" color="#ffffff" intensity="2" position="-1 2 -1"></a-light>
-            <a-entity mindar-image-target="targetIndex: 0">
-                <a-gltf-model id="ar-pizza"  src="#pizzaModel"  position="0 0.05 0" scale="0.5 0.5 0.5"   rotation="0 0 0" visible="true"></a-gltf-model>
-                <a-gltf-model id="ar-burger" src="#burgerModel" position="0 0.05 0" scale="0.15 0.15 0.15" rotation="0 0 0" visible="true"></a-gltf-model>
-                <a-gltf-model id="ar-drink"  src="#drinkModel"  position="0 0.05 0" scale="0.2 0.2 0.2"   rotation="0 0 0" visible="true"></a-gltf-model>
-            </a-entity>
-        </a-scene>
     </div>
 
     <!-- BOTTOM BAR -->
@@ -127,7 +105,6 @@
                 <div class="cal-badge">⏱️ 15 min</div>
                 <div class="cal-badge">⭐ 4.8</div>
             </div>
-            <!-- Size Comparison Row -->
             <div id="ar-size-row">
                 <div class="size-badge">📏 12 inch</div>
                 <div class="size-badge">👥 2-3 people</div>
@@ -161,7 +138,8 @@
             <div class="food-card">
                 <div class="card-img-placeholder" style="background: linear-gradient(135deg,#ff9a56,#ff6b35)">
                     <img src="https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=300&q=80" onerror="this.style.display='none'" />
-                    <span>🍕</span><div class="ar-tag">3D•AR</div>
+                    <span>🍕</span>
+                    <div class="ar-tag">3D•AR</div>
                 </div>
                 <div class="card-body">
                     <div class="card-name">Margherita Pizza</div>
@@ -182,7 +160,8 @@
             <div class="food-card">
                 <div class="card-img-placeholder" style="background: linear-gradient(135deg,#f4d03f,#e67e22)">
                     <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80" onerror="this.style.display='none'" />
-                    <span>🍔</span><div class="ar-tag">3D•AR</div>
+                    <span>🍔</span>
+                    <div class="ar-tag">3D•AR</div>
                 </div>
                 <div class="card-body">
                     <div class="card-name">Classic Burger</div>
@@ -203,7 +182,8 @@
             <div class="food-card">
                 <div class="card-img-placeholder" style="background: linear-gradient(135deg,#a8edea,#fed6e3)">
                     <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300&q=80" onerror="this.style.display='none'" />
-                    <span>🥤</span><div class="ar-tag">3D•AR</div>
+                    <span>🥤</span>
+                    <div class="ar-tag">3D•AR</div>
                 </div>
                 <div class="card-body">
                     <div class="card-name">Fresh Lemonade</div>
@@ -268,8 +248,8 @@
 
     <div id="toast">
         <div class="toast-icon" id="toast-icon">✅</div>
-        <div class="toast-msg" id="toast-msg">Added!</div>
-        <div class="toast-sub" id="toast-sub"></div>
+        <div class="toast-msg"  id="toast-msg">Added!</div>
+        <div class="toast-sub"  id="toast-sub"></div>
     </div>
 
     <script src="script.js"></script>
