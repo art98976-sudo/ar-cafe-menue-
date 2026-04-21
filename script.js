@@ -211,17 +211,20 @@ function openAR(modelId) {
     updateViewerUI(modelId);
     document.getElementById('viewer-ar').style.display = 'block';
     document.getElementById('viewer-3d').style.display = 'none';
-    document.getElementById('ar-hint-bar').innerText = '📷 Point camera at your target image';
+    document.getElementById('ar-hint-bar').innerText = '📷 Scan image · ☝️ Drag to rotate · 🤏 Pinch to zoom';
     ['ar-pizza', 'ar-burger', 'ar-drink'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.setAttribute('visible', 'false');
     });
+    // Reset AR rotation and scale
+    arRotY = 0;
+    arScale = 0.5;
     const arEl = document.getElementById(menuData[modelId].arId);
     if (arEl) {
         arEl.setAttribute('visible', 'true');
-        arEl.setAttribute('position', '0 0.1 0');
+        arEl.setAttribute('position', '0 0 0');
         arEl.setAttribute('scale', '0.5 0.5 0.5');
-        arEl.setAttribute('rotation', '0 0 0');
+        arEl.setAttribute('rotation', '-90 0 0');
     }
     history.pushState({ page: 'ar' }, '');
 }
@@ -380,3 +383,66 @@ function showToast(icon, msg, sub) {
 }
 
 window.addEventListener('resize', resizeRenderer);
+
+// ============================================
+// AR TOUCH CONTROLS — rotate and zoom in AR
+// ============================================
+let arRotY = 0;
+let arScale = 0.5;
+const arMinScale = 0.1;
+const arMaxScale = 2.0;
+let arLastTouchX = null;
+let arLastPinchDist = null;
+
+function getArModel() {
+    if (!currentModel) return null;
+    return document.getElementById(menuData[currentModel].arId);
+}
+
+function arGetPinchDist(t) {
+    const dx = t[0].clientX - t[1].clientX;
+    const dy = t[0].clientY - t[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+document.addEventListener('touchstart', function(e) {
+    if (viewerMode !== 'ar') return;
+    // ignore touches on bottom bar buttons
+    if (e.target.closest('#ar-bottombar') || e.target.closest('#back-btn')) return;
+    if (e.touches.length === 1) {
+        arLastTouchX = e.touches[0].clientX;
+        arLastPinchDist = null;
+    } else if (e.touches.length === 2) {
+        arLastPinchDist = arGetPinchDist(e.touches);
+        arLastTouchX = null;
+    }
+}, { passive: true });
+
+document.addEventListener('touchmove', function(e) {
+    if (viewerMode !== 'ar') return;
+    if (e.target.closest('#ar-bottombar') || e.target.closest('#back-btn')) return;
+    const el = getArModel();
+    if (!el) return;
+
+    if (e.touches.length === 1 && arLastTouchX !== null) {
+        // Rotate model
+        const dx = e.touches[0].clientX - arLastTouchX;
+        arRotY += dx * 0.5;
+        el.setAttribute('rotation', `-90 ${arRotY} 0`);
+        arLastTouchX = e.touches[0].clientX;
+    } else if (e.touches.length === 2 && arLastPinchDist !== null) {
+        // Zoom model
+        const newDist = arGetPinchDist(e.touches);
+        const delta = newDist - arLastPinchDist;
+        arScale += delta * 0.005;
+        if (arScale < arMinScale) arScale = arMinScale;
+        if (arScale > arMaxScale) arScale = arMaxScale;
+        el.setAttribute('scale', `${arScale} ${arScale} ${arScale}`);
+        arLastPinchDist = newDist;
+    }
+}, { passive: true });
+
+document.addEventListener('touchend', function() {
+    arLastTouchX = null;
+    arLastPinchDist = null;
+});
