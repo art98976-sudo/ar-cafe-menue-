@@ -260,6 +260,39 @@
         }
     });
     </script>
+    <script>
+    // Fix white screen - force video element to show
+    function fixARWhiteScreen() {
+        const videos = document.querySelectorAll('video');
+        videos.forEach(v => {
+            v.style.display = 'block';
+            v.style.position = 'fixed';
+            v.style.top = '0';
+            v.style.left = '0';
+            v.style.width = '100%';
+            v.style.height = '100%';
+            v.style.objectFit = 'cover';
+            v.style.zIndex = '1';
+        });
+
+        const canvas = document.querySelectorAll('#viewer-ar canvas');
+        canvas.forEach(c => {
+            c.style.position = 'fixed';
+            c.style.top = '0';
+            c.style.left = '0';
+            c.style.width = '100%';
+            c.style.height = '100%';
+            c.style.zIndex = '2';
+        });
+    }
+
+    // Run fix every second when AR is open
+    setInterval(() => {
+        if (document.getElementById('viewer-ar').style.display === 'block') {
+            fixARWhiteScreen();
+        }
+    }, 1000);
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
