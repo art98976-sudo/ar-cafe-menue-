@@ -54,17 +54,11 @@ function initThreeJS() {
     const pt = new THREE.PointLight(0xd4a574, 0.6, 20);
     pt.position.set(-3, 3, -3);
     threeScene.add(pt);
-    // OrbitControls fix - check all possible locations
-    let OC = null;
-    if (THREE.OrbitControls) OC = THREE.OrbitControls;
-    else if (window.OrbitControls) OC = window.OrbitControls;
-    else if (window.THREE && window.THREE.OrbitControls) OC = window.THREE.OrbitControls;
-    
-    if (!OC) {
-        console.error('OrbitControls not found!');
-        return;
+    // OrbitControls - patch into THREE if needed
+    if (!THREE.OrbitControls && window.OrbitControls) {
+        THREE.OrbitControls = window.OrbitControls;
     }
-    threeControls = new OC(threeCamera, canvas);
+    threeControls = new THREE.OrbitControls(threeCamera, canvas);
     threeControls.enableDamping = true;
     threeControls.dampingFactor = 0.05;
     threeControls.minDistance = 1;
