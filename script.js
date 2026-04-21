@@ -270,6 +270,7 @@ function openAR(modelId) {
     // Different scale per item
     const arScales = { pizza: 0.5, burger: 0.3, drink: 0.5 };
     arRotY = 0;
+    arRotX = 0;
     arScale = arScales[modelId] || 0.5;
 
     const arEl = document.getElementById(menuData[modelId].arId);
@@ -438,13 +439,15 @@ function showToast(icon, msg, sub) {
 window.addEventListener('resize', resizeRenderer);
 
 // ============================================
-// AR TOUCH CONTROLS — rotate and zoom in AR
+// AR TOUCH CONTROLS — full rotation all directions
 // ============================================
 let arRotY = 0;
+let arRotX = 0;
 let arScale = 0.8;
 const arMinScale = 0.1;
 const arMaxScale = 4.0;
 let arLastTouchX = null;
+let arLastTouchY = null;
 let arLastPinchDist = null;
 
 function getArModel() {
@@ -463,10 +466,12 @@ document.addEventListener('touchstart', function(e) {
     if (e.target.closest('#ar-bottombar') || e.target.closest('#back-btn')) return;
     if (e.touches.length === 1) {
         arLastTouchX = e.touches[0].clientX;
+        arLastTouchY = e.touches[0].clientY;
         arLastPinchDist = null;
     } else if (e.touches.length === 2) {
         arLastPinchDist = arGetPinchDist(e.touches);
         arLastTouchX = null;
+        arLastTouchY = null;
     }
 }, { passive: true });
 
@@ -477,14 +482,20 @@ document.addEventListener('touchmove', function(e) {
     if (!el) return;
 
     if (e.touches.length === 1 && arLastTouchX !== null) {
-        // Full 360 rotation - faster and unlimited
+        // Left/Right → rotate Y axis
         const dx = e.touches[0].clientX - arLastTouchX;
+        // Up/Down → rotate X axis
+        const dy = e.touches[0].clientY - arLastTouchY;
+
         arRotY += dx * 1.0;
-        // 360 rotation - no limit on arRotY
-        el.setAttribute('rotation', `0 ${arRotY} 0`);
+        arRotX += dy * 1.0;
+
+        // Apply both X and Y rotation
+        el.setAttribute('rotation', `${arRotX} ${arRotY} 0`);
+
         arLastTouchX = e.touches[0].clientX;
+        arLastTouchY = e.touches[0].clientY;
     } else if (e.touches.length === 2 && arLastPinchDist !== null) {
-        // More zoom range
         const newDist = arGetPinchDist(e.touches);
         const delta = newDist - arLastPinchDist;
         arScale += delta * 0.008;
@@ -497,5 +508,8 @@ document.addEventListener('touchmove', function(e) {
 
 document.addEventListener('touchend', function() {
     arLastTouchX = null;
+    arLastTouchY = null;
+    arLastPinchDist = null;
+});
     arLastPinchDist = null;
 });
