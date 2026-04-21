@@ -105,10 +105,22 @@ function loadGLBModel(modelPath) {
     if (loadedModel) { threeScene.remove(loadedModel); loadedModel = null; }
     document.getElementById('ar-loading').style.display = 'flex';
 
-    const LoaderClass = THREE.GLTFLoader || window.GLTFLoader;
-    if (!LoaderClass) { console.error('GLTFLoader not found'); return; }
+    // Use AFRAME's GLTFLoader or window.GLTFLoader
+    const LoaderClass = (window.AFRAME && window.AFRAME.THREE && window.AFRAME.THREE.GLTFLoader)
+        || window.GLTFLoader
+        || THREE.GLTFLoader;
 
+    if (!LoaderClass) { console.error('GLTFLoader not found'); return; }
     const loader = new LoaderClass();
+
+    // Set up Draco decoder for compressed models
+    const DracoClass = window.DRACOLoader || (window.AFRAME && window.AFRAME.THREE && window.AFRAME.THREE.DRACOLoader);
+    if (DracoClass) {
+        const dracoLoader = new DracoClass();
+        dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/libs/draco/');
+        loader.setDRACOLoader(dracoLoader);
+    }
+
     loader.load(modelPath,
         function (gltf) {
             loadedModel = gltf.scene;
