@@ -1,33 +1,45 @@
+// ============================================
+// FOOD DATA
+// ============================================
 const menuData = {
     pizza: {
         icon: '🍕', name: 'Margherita Pizza', price: 150,
         desc: 'Fresh tomato sauce, mozzarella cheese and aromatic basil on a perfectly crispy thin crust.',
         calories: '320 kcal', time: '15 min', rating: '4.8',
-        model: './pizza.glb',
+        model: './pizza.glb', arId: 'ar-pizza',
     },
     burger: {
         icon: '🍔', name: 'Classic Burger', price: 200,
         desc: 'Juicy beef patty with melted cheese, crisp lettuce and tomato in a toasted sesame bun.',
         calories: '540 kcal', time: '10 min', rating: '4.7',
-        model: './burger.glb',
+        model: './burger.glb', arId: 'ar-burger',
     },
     drink: {
         icon: '🥤', name: 'Fresh Lemonade', price: 80,
         desc: 'Cold pressed lemonade with fresh mint leaves, a squeeze of lime and a hint of honey.',
         calories: '85 kcal', time: '5 min', rating: '4.9',
-        model: './drink.glb',
+        model: './drink.glb', arId: 'ar-drink',
     },
 };
 
+// ============================================
+// STATE
+// ============================================
 let cart = {};
 let currentModel = null;
 let arQty = 1;
-let threeRenderer, threeScene, threeCamera, threeControls, threeAnimId;
+let viewerMode = null; // '3d' or 'ar'
+
+// Three.js
+let threeRenderer, threeScene, threeCamera, threeControls;
 let loadedModel = null;
 
+// ============================================
+// THREE.JS INIT
+// ============================================
 function initThreeJS() {
     const canvas = document.getElementById('three-canvas');
-    const container = document.getElementById('ar-page');
+    const container = document.getElementById('viewer-3d');
     threeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     threeRenderer.setPixelRatio(window.devicePixelRatio);
     threeRenderer.setSize(container.clientWidth, container.clientHeight);
@@ -35,14 +47,13 @@ function initThreeJS() {
     threeScene = new THREE.Scene();
     threeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
     threeCamera.position.set(0, 1, 3);
-    const ambient = new THREE.AmbientLight(0xffffff, 0.8);
-    threeScene.add(ambient);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    dirLight.position.set(5, 10, 7);
-    threeScene.add(dirLight);
-    const pointLight = new THREE.PointLight(0xd4a574, 0.6, 20);
-    pointLight.position.set(-3, 3, -3);
-    threeScene.add(pointLight);
+    threeScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+    dir.position.set(5, 10, 7);
+    threeScene.add(dir);
+    const pt = new THREE.PointLight(0xd4a574, 0.6, 20);
+    pt.position.set(-3, 3, -3);
+    threeScene.add(pt);
     threeControls = new THREE.OrbitControls(threeCamera, canvas);
     threeControls.enableDamping = true;
     threeControls.dampingFactor = 0.05;
@@ -57,7 +68,7 @@ function initThreeJS() {
 }
 
 function animate() {
-    threeAnimId = requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
     if (threeControls) threeControls.update();
     if (threeRenderer && threeScene && threeCamera) threeRenderer.render(threeScene, threeCamera);
 }
@@ -71,8 +82,7 @@ function loadGLBModel(modelPath) {
         const box = new THREE.Box3().setFromObject(loadedModel);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = 2.0 / maxDim;
+        const scale = 2.0 / Math.max(size.x, size.y, size.z);
         loadedModel.scale.setScalar(scale);
         loadedModel.position.sub(center.multiplyScalar(scale));
         threeScene.add(loadedModel);
@@ -80,30 +90,27 @@ function loadGLBModel(modelPath) {
         threeCamera.position.set(0, 1, 3);
         threeControls.reset();
         threeControls.autoRotate = true;
-    }, function () {}, function (error) {
-        console.error('Model load error:', error);
+    }, null, function () {
         document.getElementById('ar-loading').style.display = 'none';
-        showEmojiModel();
+        const geo = new THREE.SphereGeometry(1, 32, 32);
+        const mat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.3, metalness: 0.2 });
+        loadedModel = new THREE.Mesh(geo, mat);
+        threeScene.add(loadedModel);
     });
-}
-
-function showEmojiModel() {
-    const geo = new THREE.SphereGeometry(1, 32, 32);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.3, metalness: 0.2 });
-    loadedModel = new THREE.Mesh(geo, mat);
-    threeScene.add(loadedModel);
 }
 
 function resizeRenderer() {
     if (!threeRenderer) return;
-    const container = document.getElementById('ar-page');
+    const container = document.getElementById('viewer-3d');
     threeRenderer.setSize(container.clientWidth, container.clientHeight);
     threeCamera.aspect = container.clientWidth / container.clientHeight;
     threeCamera.updateProjectionMatrix();
 }
 
-function openAR(modelId) {
-    currentModel = modelId;
+// ============================================
+// SHARED UI UPDATE
+// ============================================
+function updateViewerUI(modelId) {
     const item = menuData[modelId];
     arQty = 1;
     document.getElementById('ar-qty-num').innerText = '1';
@@ -119,32 +126,93 @@ function openAR(modelId) {
     document.getElementById('menu-page').style.display = 'none';
     document.getElementById('bottom-nav').style.display = 'none';
     document.getElementById('cart-bar').classList.remove('visible');
-    document.getElementById('ar-page').style.display = 'block';
     document.getElementById('ar-topbar').style.display = 'flex';
     document.getElementById('ar-bottombar').style.display = 'flex';
     document.getElementById('back-btn').classList.add('visible');
+}
+
+// ============================================
+// OPEN 3D VIEWER
+// ============================================
+function open3D(modelId) {
+    currentModel = modelId;
+    viewerMode = '3d';
+    updateViewerUI(modelId);
+
+    document.getElementById('viewer-3d').style.display = 'block';
+    document.getElementById('viewer-ar').style.display = 'none';
+    document.getElementById('ar-hint-bar').innerText = '☝️ Drag to rotate · 🤏 Pinch to zoom';
+
     if (!threeRenderer) initThreeJS();
     resizeRenderer();
-    loadGLBModel(item.model);
+    loadGLBModel(menuData[modelId].model);
+    history.pushState({ page: '3d' }, '');
+}
+
+// ============================================
+// OPEN AR VIEWER
+// ============================================
+function openAR(modelId) {
+    currentModel = modelId;
+    viewerMode = 'ar';
+    updateViewerUI(modelId);
+
+    document.getElementById('viewer-ar').style.display = 'block';
+    document.getElementById('viewer-3d').style.display = 'none';
+    document.getElementById('ar-hint-bar').innerText = '📷 Point camera at your target image';
+
+    // Show correct AR model
+    ['ar-pizza', 'ar-burger', 'ar-drink'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute('visible', 'false');
+    });
+    const arEl = document.getElementById(menuData[modelId].arId);
+    if (arEl) {
+        arEl.setAttribute('visible', 'true');
+        arEl.setAttribute('position', '0 0.1 0');
+        arEl.setAttribute('scale', '0.5 0.5 0.5');
+        arEl.setAttribute('rotation', '0 0 0');
+    }
     history.pushState({ page: 'ar' }, '');
 }
 
-function closeAR() {
+// ============================================
+// CLOSE VIEWER (both 3D and AR)
+// ============================================
+function closeViewer() {
     currentModel = null;
-    document.getElementById('ar-page').style.display = 'none';
+    viewerMode = null;
+
+    document.getElementById('viewer-3d').style.display = 'none';
+    document.getElementById('viewer-ar').style.display = 'none';
     document.getElementById('ar-topbar').style.display = 'none';
     document.getElementById('ar-bottombar').style.display = 'none';
     document.getElementById('back-btn').classList.remove('visible');
     document.getElementById('menu-page').style.display = 'flex';
     document.getElementById('bottom-nav').style.display = 'flex';
+
+    ['ar-pizza', 'ar-burger', 'ar-drink'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.setAttribute('visible', 'false');
+    });
+
     if (threeControls) threeControls.autoRotate = false;
     updateCartBar();
 }
 
+// ============================================
+// RESET MODEL
+// ============================================
 function resetModel() {
-    if (threeControls) { threeControls.reset(); threeControls.autoRotate = true; }
+    if (viewerMode === '3d' && threeControls) {
+        threeControls.reset();
+        threeControls.autoRotate = true;
+    }
 }
 
+// ============================================
+// CART FUNCTIONS
+// ============================================
 function quickAdd(id) {
     addItemToCart(id, 1);
     showToast('✅', menuData[id].name + ' added!', 'Rs. ' + menuData[id].price);
@@ -176,7 +244,6 @@ function addFromCart(id) {
 }
 
 function getCartCount() { return Object.values(cart).reduce((sum, v) => sum + v.qty, 0); }
-
 function getCartTotal() { return Object.entries(cart).reduce((sum, [id, v]) => sum + (menuData[id].price * v.qty), 0); }
 
 function updateCartBar() {
@@ -198,7 +265,7 @@ function changeQty(delta) {
 function orderNow() {
     if (!currentModel) return;
     addItemToCart(currentModel, arQty);
-    closeAR();
+    closeViewer();
     setTimeout(() => placeOrder(), 300);
 }
 
@@ -260,7 +327,8 @@ function showMenu() {
 }
 
 window.addEventListener('popstate', function () {
-    if (document.getElementById('ar-page').style.display === 'block') { closeAR(); return; }
+    if (document.getElementById('viewer-3d').style.display === 'block' ||
+        document.getElementById('viewer-ar').style.display === 'block') { closeViewer(); return; }
     if (document.getElementById('cart-page').classList.contains('open')) { closeCart(); return; }
     if (document.getElementById('order-success').classList.contains('open')) { backToMenu(); return; }
 });
