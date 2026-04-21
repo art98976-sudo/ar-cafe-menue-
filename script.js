@@ -117,7 +117,9 @@ function loadGLBModel(modelPath) {
     const DracoClass = window.DRACOLoader || (window.AFRAME && window.AFRAME.THREE && window.AFRAME.THREE.DRACOLoader);
     if (DracoClass) {
         const dracoLoader = new DracoClass();
-        dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/libs/draco/');
+        // Use Google's hosted Draco decoder which is always available
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        dracoLoader.setDecoderConfig({ type: 'js' });
         loader.setDRACOLoader(dracoLoader);
     }
 
