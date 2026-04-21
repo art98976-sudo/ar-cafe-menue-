@@ -440,10 +440,26 @@ function initARDetection() {
     const scene = document.querySelector('a-scene');
     if (!scene) return;
 
-    // Method 1: Standard event listeners
+    // Always keep model visible — MindAR parent controls show/hide
+    function keepModelVisible() {
+        if (!currentModel || viewerMode !== 'ar') return;
+        const arEl = document.getElementById(menuData[currentModel].arId);
+        if (arEl && arEl.getAttribute('visible') === 'false') {
+            arEl.setAttribute('visible', 'true');
+        }
+    }
+
+    // Poll every 100ms to keep model visible
+    const keepAlive = setInterval(() => {
+        if (viewerMode !== 'ar') { clearInterval(keepAlive); return; }
+        keepModelVisible();
+    }, 100);
+
+    // Event listeners
     const target = document.querySelector('[mindar-image-target]');
     if (target) {
         target.addEventListener('targetFound', function() {
+            keepModelVisible();
             onARDetected();
         });
         target.addEventListener('targetLost', function() {
@@ -451,23 +467,14 @@ function initARDetection() {
         });
     }
 
-    // Method 2: Fallback - watch MindAR anchor visibility
-    // This works even when events don't fire
-    let pollInterval = setInterval(() => {
-        if (viewerMode !== 'ar') {
-            clearInterval(pollInterval);
-            return;
-        }
-        // Check if any anchor is visible in MindAR
-        const anchors = document.querySelectorAll('[mindar-image-target]');
-        anchors.forEach(anchor => {
-            const obj = anchor.object3D;
-            if (obj && obj.visible && !arDetected) {
-                onARDetected();
-            } else if (obj && !obj.visible && arDetected) {
-                onARLost();
-            }
-        });
+    // Also poll anchor visibility for detection UI
+    const detectPoll = setInterval(() => {
+        if (viewerMode !== 'ar') { clearInterval(detectPoll); return; }
+        const anchor = document.querySelector('[mindar-image-target]');
+        if (!anchor) return;
+        const visible = anchor.object3D && anchor.object3D.visible;
+        if (visible && !arDetected) onARDetected();
+        else if (!visible && arDetected) onARLost();
     }, 200);
 }
 
