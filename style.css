@@ -961,22 +961,48 @@ html, body {
     inset: 0;
     z-index: 50;
     display: none;
-    background: transparent !important;
+    background: #000;
+}
+
+/* Force ALL white backgrounds to disappear */
+#viewer-ar * {
+    background-color: transparent !important;
 }
 
 #viewer-ar a-scene {
     position: fixed !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    z-index: 50 !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 2 !important;
+    background: transparent !important;
 }
 
+/* Force camera video to show on ALL phones */
+#viewer-ar video,
+.a-canvas,
+[mindar-image] video {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    object-fit: cover !important;
+    z-index: 1 !important;
+    display: block !important;
+    background: #000 !important;
+}
+
+/* Canvas transparent so video shows through */
 #viewer-ar canvas {
     position: fixed !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 2 !important;
+    background: transparent !important;
 }
 
 #ar-scan-hint {
@@ -1287,4 +1313,22 @@ html, body {
 
 #ar-controls-hint.visible {
     display: flex;
+}
+
+/* Tap to fix white screen button */
+#ar-tap-fix {
+    position: fixed;
+    bottom: 480px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    background: rgba(44, 24, 16, 0.9);
+    color: #d4a574;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 1px solid rgba(212,165,116,0.4);
 }

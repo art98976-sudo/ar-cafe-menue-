@@ -530,13 +530,55 @@ openAR = function(modelId) {
     setTimeout(initARDetection, 2000);
     // Start dot animation
     startDotAnimation();
+    // Fix white screen - force video to show
+    fixARVideo();
 };
+
+function fixARVideo() {
+    // Run multiple times to catch video after it loads
+    const attempts = [100, 500, 1000, 2000, 3000];
+    attempts.forEach(delay => {
+        setTimeout(() => {
+            const videos = document.querySelectorAll('#viewer-ar video');
+            videos.forEach(v => {
+                v.style.cssText = `
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    object-fit: cover !important;
+                    z-index: 1 !important;
+                    display: block !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                `;
+                // Force play if paused
+                if (v.paused) v.play().catch(() => {});
+            });
+
+            // Also fix canvas z-index
+            const canvases = document.querySelectorAll('#viewer-ar canvas');
+            canvases.forEach(c => {
+                c.style.cssText = `
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    z-index: 2 !important;
+                `;
+            });
+        }, delay);
+    });
+}
 
 const _closeViewer = closeViewer;
 closeViewer = function() {
     _closeViewer();
     arDetected = false;
     stopDotAnimation();
+    if (videoFixInterval) { clearInterval(videoFixInterval); videoFixInterval = null; }
     const overlay = document.getElementById('scan-overlay');
     if (overlay) overlay.classList.remove('hidden');
     const hint = document.getElementById('ar-controls-hint');
